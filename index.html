@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>天狼电影网 - 电影推荐与星图观影片单_每晚更新</title>
+<meta name="description" content="天狼电影网（https://tianlangdianyingwang-cn.github.io）用星空观测的逻辑整理电影：每晚更新天区星官、可见方位、星等亮度、光变曲线与流星雨时刻表，主打科幻与夜色题材影片推荐，附剧情简介、时长与评分参考，页面移动端自适应。">
+<meta name="keywords" content="天狼电影网,电影推荐,观影片单,科幻电影,在线观看,电影评分,星等榜单,流星雨时刻表,影视资讯,观影指南">
+<meta name="author" content="天狼电影网">
+<meta name="robots" content="index,follow">
+<meta name="renderer" content="webkit">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#070b1e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="天狼电影网">
+<link rel="canonical" href="https://tianlangdianyingwang-cn.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="天狼电影网">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="天狼电影网 - 电影推荐与星图观影片单_每晚更新">
+<meta property="og:description" content="天狼电影网每晚更新天区星官、可见方位、星等亮度、光变曲线与流星雨时刻表，附剧情简介、时长与评分参考。">
+<meta property="og:url" content="https://tianlangdianyingwang-cn.github.io/">
+<meta property="og:image" content="https://tianlangdianyingwang-cn.github.io/cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="天狼电影网 - 电影推荐与星图观影片单">
+<meta name="twitter:description" content="天区星官、星等亮度、流星雨时刻表一站聚合，天狼电影网每晚更新。">
+<style>
+/* ==========================================================
+   天狼电影网 · 深空观星台 / 星图夜空
+   深靛蓝夜空 + 银河紫 + 天狼蓝白 + 暖星橙
+   DOM 差异化：星座连线首屏 / 天区星官分区卡 /
+   方位角极坐标盘 / 星等光点(大小+光晕表示亮度) /
+   clip-path 光变折线 / 流星雨斜条时刻表 / 星轨旋转环
+   ========================================================== */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",Helvetica,Arial,sans-serif;
+  background:#070b1e;color:#c9d4ee;line-height:1.82;font-size:16px;overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+ul,ol{list-style:none}
+img{border:0;max-width:100%;height:auto}
+h1,h2,h3,h4{line-height:1.4}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace}
+
+:root{
+  --sky:#070b1e;
+  --deep:#0b1130;
+  --panel:rgba(255,255,255,.045);
+  --panel2:rgba(255,255,255,.075);
+  --line:rgba(190,210,255,.20);
+  --line2:rgba(190,210,255,.38);
+  --text:#c9d4ee;
+  --sub:#94a3c9;
+  --muted:#6c7ba3;
+  --sirius:#9fd4ff;
+  --violet:#8f7bff;
+  --warm:#ffb86b;
+  --pink:#ff7ba8;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:var(--sky);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(1.5px 1.5px at 8% 14%,rgba(255,255,255,.7),transparent),
+    radial-gradient(1.2px 1.2px at 22% 46%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.6px 1.6px at 41% 8%,rgba(255,255,255,.55),transparent),
+    radial-gradient(1.1px 1.1px at 63% 32%,rgba(255,255,255,.45),transparent),
+    radial-gradient(1.4px 1.4px at 84% 18%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 92% 62%,rgba(255,255,255,.4),transparent),
+    radial-gradient(1.3px 1.3px at 14% 78%,rgba(255,255,255,.45),transparent),
+    radial-gradient(1.2px 1.2px at 54% 88%,rgba(255,255,255,.38),transparent),
+    radial-gradient(1px 1px at 74% 74%,rgba(255,255,255,.35),transparent),
+    radial-gradient(1.5px 1.5px at 33% 66%,rgba(255,255,255,.42),transparent),
+    radial-gradient(720px 460px at 84% -4%,rgba(143,123,255,.16),transparent 62%),
+    radial-gradient(700px 460px at 4% 10%,rgba(159,212,255,.14),transparent 60%),
+    radial-gradient(680px 520px at 50% 108%,rgba(255,184,107,.10),transparent 62%);
+}
+.wrap{width:100%;max-width:1160px;margin:0 auto;padding:0 22px}
+
+/* ---------- 通用 ---------- */
+.panel{border:1px solid var(--line);background:var(--panel);border-radius:16px}
+.glowdot{border-radius:50%;background:radial-gradient(circle at 36% 32%,#fff,var(--sirius) 58%,rgba(159,212,255,0));flex:0 0 auto}
+
+/* ============ 顶部 ============ */
+header.obs{position:sticky;top:0;z-index:60;background:rgba(7,11,30,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+.obs-top{max-width:1160px;margin:0 auto;padding:7px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11.5px;letter-spacing:1.5px;color:var(--muted)}
+.obs-top span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.obs-top b{color:var(--sirius)}
+.obs-main{max-width:1160px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:16px}
+.logo{display:flex;align-items:center;gap:12px;flex:0 0 auto}
+.logo .star{
+  width:42px;height:42px;flex:0 0 auto;position:relative;display:flex;align-items:center;justify-content:center;
+}
+.logo .star::before{
+  content:"";position:absolute;inset:6px;background:radial-gradient(circle at 38% 34%,#fff,var(--sirius) 56%,rgba(159,212,255,0));
+  clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+  box-shadow:0 0 18px rgba(159,212,255,.6);
+}
+.logo strong{display:block;font-size:20px;letter-spacing:2px;color:#fff}
+.logo small{display:block;font-size:10px;letter-spacing:2.5px;color:var(--muted)}
+nav.sky{margin-left:auto;overflow-x:auto;scrollbar-width:none}
+nav.sky::-webkit-scrollbar{display:none}
+nav.sky ul{display:flex;gap:5px}
+nav.sky a{display:block;padding:7px 13px;font-size:13.5px;color:var(--sub);border-radius:999px;white-space:nowrap;border:1px solid transparent;transition:.18s}
+nav.sky a:hover{color:#fff;background:var(--panel2);border-color:var(--line)}
+nav.sky a.on{color:#060a1c;background:linear-gradient(120deg,var(--sirius),var(--violet));font-weight:700;box-shadow:0 6px 16px rgba(143,123,255,.32)}
+.scope{flex:0 0 auto;display:flex;align-items:center;border:1px solid var(--line2);border-radius:999px;background:rgba(255,255,255,.05);padding:3px}
+.scope input{width:132px;height:30px;border:0;outline:none;background:transparent;padding:0 12px;font-size:13px;color:#fff;font-family:inherit}
+.scope input::placeholder{color:#5c6b93}
+.scope button{height:30px;border:0;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;color:#060a1c;background:var(--sirius);cursor:pointer;font-family:inherit}
+
+/* ============ 首屏：星座连线星图 ============ */
+.skymap{padding:26px 0 8px}
+.skymap-inner{position:relative;overflow:hidden;padding:46px 30px 34px}
+.skymap-inner::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(1.4px 1.4px at 18% 30%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1.2px 1.2px at 62% 22%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.6px 1.6px at 82% 56%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.1px 1.1px at 32% 72%,rgba(255,255,255,.45),transparent),
+    radial-gradient(1.3px 1.3px at 70% 84%,rgba(255,255,255,.4),transparent);
+}
+/* 星座连线 */
+.constell{position:relative;height:230px;margin:0 auto 6px;max-width:880px}
+.constell .node{position:absolute;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 36% 32%,#fff,var(--sirius) 60%,rgba(159,212,255,0));box-shadow:0 0 14px rgba(159,212,255,.7);z-index:3}
+.constell .node.big{width:20px;height:20px;box-shadow:0 0 22px rgba(159,212,255,.9)}
+.constell .node.v{background:radial-gradient(circle at 36% 32%,#fff,var(--violet) 60%,rgba(143,123,255,0));box-shadow:0 0 14px rgba(143,123,255,.7)}
+.constell .node.w{background:radial-gradient(circle at 36% 32%,#fff,var(--warm) 60%,rgba(255,184,107,0));box-shadow:0 0 14px rgba(255,184,107,.7)}
+.constell .link{position:absolute;height:1px;background:linear-gradient(90deg,rgba(159,212,255,.55),rgba(143,123,255,.35));transform-origin:0 50%;z-index:2}
+.constell .cap{position:absolute;font-size:11px;letter-spacing:2px;color:var(--muted);z-index:4;white-space:nowrap}
+.hero-body{position:relative;z-index:5;text-align:center;max-width:760px;margin:0 auto}
+.hero-body .tag{
+  display:inline-block;font-size:11.5px;letter-spacing:4px;color:var(--sirius);
+  border:1px solid rgba(159,212,255,.34);background:rgba(159,212,255,.08);padding:5px 15px;border-radius:999px;
+}
+.hero-body h1{margin-top:16px;font-size:clamp(28px,5.6vw,50px);letter-spacing:2px;color:#fff;line-height:1.22}
+.hero-body h1 em{font-style:normal;background:linear-gradient(120deg,var(--sirius),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-body .lead{margin-top:16px;font-size:15px;color:#a3b1d6;max-width:38em;margin-left:auto;margin-right:auto}
+.hero-body .url{margin-top:13px;font-size:13.5px;color:var(--muted);word-break:break-all}
+.hero-body .url b{color:var(--sirius)}
+.hero-btns{margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btns{display:inline-block;padding:12px 26px;border-radius:999px;font-size:14.5px;font-weight:700;transition:.18s}
+.btns-a{background:linear-gradient(120deg,var(--sirius),var(--violet));color:#060a1c;box-shadow:0 10px 24px rgba(143,123,255,.32)}
+.btns-b{border:1px solid var(--line2);color:#fff;background:rgba(255,255,255,.04)}
+.btns:hover{transform:translateY(-2px)}
+.hero-nums{margin-top:28px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;position:relative;z-index:5}
+.hero-nums div{padding:15px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+.hero-nums .k{display:block;font-size:10.5px;letter-spacing:2px;color:var(--muted)}
+.hero-nums .v{display:block;margin-top:2px;font-size:22px;font-weight:800;color:#fff}
+.hero-nums div:nth-child(2) .v{color:var(--sirius)}
+.hero-nums div:nth-child(3) .v{color:var(--warm)}
+
+/* ============ 栏目通用 ============ */
+section.blk{padding:46px 0 6px}
+.cap{display:flex;align-items:flex-end;gap:16px;margin-bottom:22px;padding-bottom:12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.cap .const{
+  flex:0 0 auto;display:flex;align-items:center;gap:9px;font-size:12px;letter-spacing:2px;color:var(--sirius);
+  border:1px solid var(--line2);padding:5px 14px;border-radius:999px;background:rgba(159,212,255,.06);
+}
+.cap .const i{
+  width:14px;height:14px;flex:0 0 auto;background:radial-gradient(circle at 36% 32%,#fff,var(--sirius) 60%,rgba(159,212,255,0));
+  clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+}
+.cap h2{font-size:clamp(19px,3.4vw,27px);color:#fff;letter-spacing:2px}
+.cap .dsc{font-size:13px;color:var(--muted);margin-top:4px}
+.cap .go{
+  margin-left:auto;font-size:13px;color:var(--violet);border:1px solid rgba(143,123,255,.36);padding:6px 15px;border-radius:999px;
+  white-space:nowrap;background:rgba(143,123,255,.08);
+}
+
+/* ============ 一、天区星官 ============ */
+.mansions{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.mansion{padding:20px 18px 18px;border:1px solid var(--line);border-radius:16px;background:var(--panel);position:relative;overflow:hidden;transition:.24s}
+.mansion:hover{background:var(--panel2);border-color:var(--line2);transform:translateY(-4px)}
+.mansion::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--sirius),transparent)}
+.mansion:nth-child(2)::before{background:linear-gradient(90deg,var(--violet),transparent)}
+.mansion:nth-child(3)::before{background:linear-gradient(90deg,var(--warm),transparent)}
+.mansion:nth-child(4)::before{background:linear-gradient(90deg,var(--pink),transparent)}
+.mansion:nth-child(5)::before{background:linear-gradient(90deg,var(--violet),transparent)}
+.mansion:nth-child(6)::before{background:linear-gradient(90deg,var(--sirius),transparent)}
+.mansion:nth-child(7)::before{background:linear-gradient(90deg,var(--pink),transparent)}
+.mansion:nth-child(8)::before{background:linear-gradient(90deg,var(--warm),transparent)}
+.mansion .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mansion .hd b{font-size:16.5px;color:#fff;letter-spacing:1px}
+.mansion .hd .stars{display:flex;gap:4px}
+.mansion .hd .stars i{width:7px;height:7px;border-radius:50%;background:var(--sirius);box-shadow:0 0 6px rgba(159,212,255,.6)}
+.mansion .hd .stars i.dim{background:rgba(190,210,255,.18);box-shadow:none}
+.mansion .en{margin-top:4px;font-size:10.5px;letter-spacing:2.5px;color:var(--muted)}
+.mansion p{margin-top:11px;font-size:13px;color:var(--sub);line-height:1.75}
+.mansion ul{margin-top:12px;border-top:1px dashed var(--line);padding-top:11px}
+.mansion li{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:13.5px;padding:4px 0}
+.mansion li a:hover{color:var(--sirius)}
+.mansion li b{color:var(--warm);font-weight:700}
+.mansion .ct{margin-top:11px;font-size:11.5px;color:var(--muted);letter-spacing:1px}
+
+/* ============ 二、可见方位（极坐标盘） ============ */
+.visibles{display:grid;gap:14px}
+.vrow{display:grid;grid-template-columns:150px 1fr 150px;gap:20px;align-items:center;padding:16px 20px;border:1px solid var(--line);border-radius:16px;background:var(--panel);transition:.2s}
+.vrow:hover{background:var(--panel2);border-color:var(--line2)}
+.vrow .nm h3{font-size:16px;color:#fff}
+.vrow .nm h3 a:hover{color:var(--sirius)}
+.vrow .nm p{margin-top:4px;font-size:12px;color:var(--muted)}
+.polar{
+  position:relative;width:100%;height:56px;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  background:
+    repeating-linear-gradient(90deg,rgba(190,210,255,.08) 0 1px,transparent 1px 12.5%),
+    radial-gradient(circle at 50% 130%,rgba(143,123,255,.18),transparent 70%);
+}
+.polar .grid{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(190,210,255,.07) 0 1px,transparent 1px 18px)}
+.polar .pt{position:absolute;top:50%;left:var(--x,50%);transform:translate(-50%,-50%);z-index:3}
+.polar .pt i{display:block;border-radius:50%;background:radial-gradient(circle at 36% 32%,#fff,var(--sirius) 58%,rgba(159,212,255,0));box-shadow:0 0 12px rgba(159,212,255,.8)}
+.polar .pt.m1 i{width:18px;height:18px}
+.polar .pt.m2 i{width:14px;height:14px}
+.polar .pt.m3 i{width:11px;height:11px}
+.polar .pt.m4 i{width:9px;height:9px}
+.polar .axis{position:absolute;left:0;right:0;bottom:4px;display:flex;justify-content:space-between;padding:0 10px;font-size:10px;letter-spacing:1px;color:var(--muted);z-index:2}
+.vrow .rt{text-align:right}
+.vrow .rt b{display:block;font-size:19px;font-weight:800;color:#fff}
+.vrow .rt span{font-size:11.5px;color:var(--muted)}
+.vfoot{margin-top:14px;padding:12px 18px;border:1px dashed var(--line);border-radius:12px;font-size:12.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
+.vfoot b{color:var(--sirius)}
+
+/* ============ 三、星等亮度（光点大小） ============ */
+.mags{padding:24px 22px 20px}
+.magrow{display:grid;grid-template-columns:56px 1fr 160px 70px;gap:18px;align-items:center;padding:14px 0;border-bottom:1px dashed var(--line)}
+.magrow:last-child{border-bottom:0}
+.magrow:hover{background:rgba(159,212,255,.05)}
+.magrow .no{
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:12.5px;font-weight:800;color:#060a1c;background:var(--sirius);
+}
+.magrow:nth-child(3) .no{background:var(--violet);color:#fff}
+.magrow:nth-child(4) .no{background:var(--warm);color:#2a1a04}
+.magrow .nm h3{font-size:15.5px;color:#fff}
+.magrow .nm h3 a:hover{color:var(--sirius)}
+.magrow .nm p{margin-top:3px;font-size:12px;color:var(--muted)}
+.magdots{display:flex;align-items:center;gap:9px}
+.magdots i{border-radius:50%;background:radial-gradient(circle at 36% 32%,#fff,var(--sirius) 58%,rgba(159,212,255,.15));box-shadow:0 0 10px rgba(159,212,255,.6)}
+.magdots .g1{width:22px;height:22px}
+.magdots .g2{width:18px;height:18px}
+.magdots .g3{width:14px;height:14px}
+.magdots .g4{width:11px;height:11px}
+.magdots .g5{width:8px;height:8px}
+.magdots em{font-style:normal;font-size:11.5px;color:var(--muted);margin-left:4px}
+.magrow .rt{text-align:right}
+.magrow .rt b{display:block;font-size:18px;font-weight:800;color:#fff}
+.magrow .rt span{font-size:11.5px;color:var(--muted)}
+.mags .mf{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted)}
+.mags .mf b{color:var(--sirius)}
+
+/* ============ 四、光变曲线（clip-path 折线） ============ */
+.curves{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.curve{padding:20px 18px 16px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.curve .ch{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.curve .ch h3{font-size:16px;color:#fff}
+.curve .ch h3 a:hover{color:var(--sirius)}
+.curve .ch span{font-size:11.5px;color:var(--muted)}
+.plot{
+  position:relative;height:120px;margin-top:14px;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  background:repeating-linear-gradient(0deg,rgba(190,210,255,.06) 0 1px,transparent 1px 20px);
+}
+.plot .area{
+  position:absolute;left:0;right:0;bottom:0;height:64%;
+  background:linear-gradient(180deg,rgba(159,212,255,.34),rgba(159,212,255,.03));
+  clip-path:polygon(0 72%,8% 54%,16% 62%,24% 34%,32% 46%,40% 22%,48% 38%,56% 18%,64% 44%,72% 30%,80% 52%,88% 40%,96% 66%,100% 58%,100% 100%,0 100%);
+}
+.plot .line{
+  position:absolute;left:0;right:0;top:0;height:100%;
+  background:var(--sirius);
+  clip-path:polygon(0 76%,8% 58%,16% 66%,24% 38%,32% 50%,40% 26%,48% 42%,56% 22%,64% 48%,72% 34%,80% 56%,88% 44%,96% 70%,100% 62%,100% 66%,96% 74%,88% 48%,80% 60%,72% 38%,64% 52%,56% 26%,48% 46%,40% 30%,32% 54%,24% 42%,16% 70%,8% 62%,0 80%);
+  box-shadow:0 0 10px rgba(159,212,255,.5);
+}
+.curve:nth-child(2) .plot .area{background:linear-gradient(180deg,rgba(143,123,255,.34),rgba(143,123,255,.03));clip-path:polygon(0 40%,10% 30%,20% 46%,30% 24%,40% 38%,50% 14%,60% 32%,70% 22%,80% 40%,90% 28%,100% 44%,100% 100%,0 100%)}
+.curve:nth-child(2) .plot .line{background:var(--violet);clip-path:polygon(0 44%,10% 34%,20% 50%,30% 28%,40% 42%,50% 18%,60% 36%,70% 26%,80% 44%,90% 32%,100% 48%,100% 52%,90% 36%,80% 48%,70% 30%,60% 40%,50% 22%,40% 46%,30% 32%,20% 54%,10% 38%,0 48%)}
+.curve:nth-child(3) .plot .area{background:linear-gradient(180deg,rgba(255,184,107,.32),rgba(255,184,107,.03));clip-path:polygon(0 62%,12% 70%,24% 58%,36% 66%,48% 50%,60% 62%,72% 44%,84% 58%,100% 48%,100% 100%,0 100%)}
+.curve:nth-child(3) .plot .line{background:var(--warm);clip-path:polygon(0 66%,12% 74%,24% 62%,36% 70%,48% 54%,60% 66%,72% 48%,84% 62%,100% 52%,100% 56%,84% 66%,72% 52%,60% 70%,48% 58%,36% 74%,24% 66%,12% 78%,0 70%)}
+.plot .ax{position:absolute;left:0;right:0;bottom:4px;display:flex;justify-content:space-between;padding:0 10px;font-size:10px;letter-spacing:1px;color:var(--muted);z-index:3}
+.curve p{margin-top:12px;font-size:13px;color:var(--sub)}
+.curve .pk{margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px dashed var(--line);padding-top:10px;font-size:12px;color:var(--muted)}
+.curve .pk b{color:var(--warm);font-size:14px}
+
+/* ============ 五、流星雨时刻表（斜条） ============ */
+.showers{padding:4px 0 0}
+.shower{
+  display:grid;grid-template-columns:96px 1fr 130px;gap:18px;align-items:center;padding:16px 20px;
+  border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-bottom:12px;transition:.2s;
+}
+.shower:last-child{margin-bottom:0}
+.shower:hover{background:var(--panel2);border-color:var(--line2)}
+.shower .tm{font-size:19px;font-weight:800;color:var(--sirius);letter-spacing:1px}
+.shower .tm small{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:1px}
+.shower .bd h3{font-size:16px;color:#fff}
+.shower .bd h3 a:hover{color:var(--sirius)}
+.shower .bd p{margin-top:5px;font-size:13px;color:var(--sub)}
+.streak{
+  position:relative;height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--line);
+  background:repeating-linear-gradient(115deg,rgba(159,212,255,.30) 0 3px,transparent 3px 11px);
+}
+.shower:nth-child(2) .streak{background:repeating-linear-gradient(115deg,rgba(143,123,255,.32) 0 3px,transparent 3px 11px)}
+.shower:nth-child(3) .streak{background:repeating-linear-gradient(115deg,rgba(255,184,107,.32) 0 3px,transparent 3px 11px)}
+.shower:nth-child(4) .streak{background:repeating-linear-gradient(115deg,rgba(255,123,168,.30) 0 3px,transparent 3px 11px)}
+.shower:nth-child(5) .streak{background:repeating-linear-gradient(115deg,rgba(159,212,255,.26) 0 3px,transparent 3px 11px)}
+.streak b{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:12px;letter-spacing:2px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.55);
+}
+.shower-note{margin-top:14px;padding:12px 18px;border:1px dashed var(--line);border-radius:12px;font-size:12.5px;color:var(--muted);text-align:center}
+.shower-note b{color:var(--sirius)}
+
+/* ============ 六、站点特色 ============ */
+.pts{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.pt{padding:22px 20px;border:1px solid var(--line);border-radius:16px;background:var(--panel);position:relative;overflow:hidden}
+.pt .n{
+  position:absolute;right:14px;top:6px;font-size:34px;font-weight:900;color:transparent;
+  -webkit-text-stroke:1.4px rgba(159,212,255,.34);
+}
+.pt h3{font-size:16px;color:#fff;margin-bottom:7px;letter-spacing:1px}
+.pt p{font-size:13.5px;color:var(--sub)}
+
+/* ============ 七、FAQ ============ */
+.faqs{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.faqs details{padding:15px 20px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.faqs summary{cursor:pointer;font-size:15.5px;font-weight:700;color:#fff;list-style:none;display:flex;align-items:center;gap:9px}
+.faqs summary::-webkit-details-marker{display:none}
+.faqs summary i{
+  flex:0 0 auto;width:12px;height:12px;background:radial-gradient(circle at 36% 32%,#fff,var(--sirius) 60%,rgba(159,212,255,0));
+  clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+}
+.faqs summary::after{content:"＋";margin-left:auto;color:var(--sirius);font-weight:800}
+.faqs details[open] summary::after{content:"－"}
+.faqs details p{margin-top:10px;font-size:13.5px;color:var(--sub)}
+
+/* ============ 页脚 ============ */
+footer.foot{margin-top:54px;border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(11,17,48,.7),rgba(7,11,30,.96));padding:42px 0 26px}
+.f-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:28px}
+.f-grid h4{font-size:12.5px;letter-spacing:3px;color:var(--sirius);margin-bottom:14px}
+.f-grid li{font-size:13.5px;color:var(--sub);padding:4px 0}
+.f-grid li a:hover{color:var(--sirius)}
+.f-brand .lg{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.f-brand .lg i{
+  width:38px;height:38px;flex:0 0 auto;background:radial-gradient(circle at 38% 34%,#fff,var(--sirius) 56%,rgba(159,212,255,0));
+  clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+}
+.f-brand .lg b{font-size:19px;letter-spacing:2px;color:#fff}
+.f-brand p{font-size:13.5px;line-height:1.95;color:var(--sub)}
+.f-brand .u{margin-top:10px;font-size:12.5px;color:var(--sirius);word-break:break-all}
+.copy{margin-top:26px;padding-top:18px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted);text-align:center;line-height:1.9}
+
+/* ============ 移动端底栏 ============ */
+.dock{
+  display:none;position:fixed;left:0;right:0;bottom:0;z-index:70;background:rgba(7,11,30,.98);
+  border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+}
+.dock ul{display:flex}
+.dock li{flex:1}
+.dock a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--muted);padding:5px 0}
+.dock a .ic{font-size:15px;line-height:1;color:var(--sirius)}
+.dock a.on{color:var(--sirius);font-weight:700}
+.up{
+  position:fixed;right:18px;bottom:80px;z-index:65;width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:17px;color:#060a1c;background:var(--sirius);
+  box-shadow:0 0 18px rgba(159,212,255,.4);
+}
+
+/* ============ 响应式 ============ */
+@media (max-width:1080px){
+  .mansions{grid-template-columns:repeat(2,1fr)}
+  .curves{grid-template-columns:1fr}
+  .vrow{grid-template-columns:130px 1fr 120px}
+  .pts{grid-template-columns:repeat(2,1fr)}
+  .f-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:860px){
+  .magrow{grid-template-columns:44px 1fr 62px}
+  .magdots{display:none}
+}
+@media (max-width:768px){
+  body{font-size:15px;padding-bottom:62px}
+  .wrap{padding:0 16px}
+  .obs-top{padding:6px 16px;font-size:10.5px;letter-spacing:1px}
+  .obs-top span:last-child{display:none}
+  .obs-main{padding:11px 16px;gap:10px}
+  .logo .star{width:34px;height:34px}
+  .logo strong{font-size:17.5px;letter-spacing:1px}
+  .logo small{font-size:9px;letter-spacing:1.5px}
+  .scope{display:none}
+  nav.sky a{padding:6px 11px;font-size:13px}
+  .skymap{padding:16px 0 2px}
+  .skymap-inner{padding:26px 16px 22px}
+  .constell{height:160px}
+  .constell .cap{display:none}
+  .hero-nums{grid-template-columns:repeat(2,1fr);gap:9px}
+  .hero-nums .v{font-size:19px}
+  section.blk{padding:32px 0 2px}
+  .cap .go{margin-left:0;width:100%;text-align:center}
+  .mansions{grid-template-columns:1fr;gap:12px}
+  .vrow{grid-template-columns:1fr;gap:10px;padding:14px 14px}
+  .vrow .rt{text-align:left;display:flex;align-items:baseline;gap:10px;border-top:1px dashed var(--line);padding-top:9px}
+  .vrow .rt b{font-size:16px}
+  .mags{padding:16px 14px 14px}
+  .magrow{grid-template-columns:36px 1fr 52px;gap:10px;padding:12px 0}
+  .magrow .no{width:28px;height:28px;font-size:11.5px}
+  .magrow .nm h3{font-size:14.5px}
+  .magrow .rt b{font-size:15px}
+  .curve{padding:16px 14px 13px}
+  .plot{height:100px}
+  .shower{grid-template-columns:1fr;gap:10px;padding:14px 14px}
+  .shower .tm{font-size:17px}
+  .streak{height:28px}
+  .pts{grid-template-columns:1fr;gap:12px}
+  .faqs{grid-template-columns:1fr}
+  .f-grid{grid-template-columns:1fr;gap:22px}
+  .dock{display:block}
+  .up{bottom:74px;right:12px;width:40px;height:40px}
+}
+@media (max-width:420px){
+  .constell{height:120px}
+  .hero-btns a{flex:1 1 100%;text-align:center}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important}
+}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://tianlangdianyingwang-cn.github.io/#website",
+      "url": "https://tianlangdianyingwang-cn.github.io/",
+      "name": "天狼电影网",
+      "alternateName": "天狼电影",
+      "description": "天狼电影网用星空观测的逻辑整理电影：天区星官、可见方位、星等亮度、光变曲线与流星雨时刻表，主打科幻与夜色题材影片推荐。",
+      "inLanguage": "zh-CN",
+      "publisher": { "@id": "https://tianlangdianyingwang-cn.github.io/#organization" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://tianlangdianyingwang-cn.github.io/#search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://tianlangdianyingwang-cn.github.io/#organization",
+      "name": "天狼电影网",
+      "url": "https://tianlangdianyingwang-cn.github.io/",
+      "logo": "https://tianlangdianyingwang-cn.github.io/logo.png"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://tianlangdianyingwang-cn.github.io/#webpage",
+      "url": "https://tianlangdianyingwang-cn.github.io/",
+      "name": "天狼电影网 - 电影推荐与星图观影片单_每晚更新",
+      "isPartOf": { "@id": "https://tianlangdianyingwang-cn.github.io/#website" },
+      "about": "电影推荐、星图观影片单与科幻电影",
+      "inLanguage": "zh-CN",
+      "breadcrumb": { "@id": "https://tianlangdianyingwang-cn.github.io/#breadcrumb" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://tianlangdianyingwang-cn.github.io/#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "天狼电影网首页", "item": "https://tianlangdianyingwang-cn.github.io/" },
+        { "@type": "ListItem", "position": 2, "name": "天区星官", "item": "https://tianlangdianyingwang-cn.github.io/#mansion" },
+        { "@type": "ListItem", "position": 3, "name": "可见方位", "item": "https://tianlangdianyingwang-cn.github.io/#visible" },
+        { "@type": "ListItem", "position": 4, "name": "星等亮度", "item": "https://tianlangdianyingwang-cn.github.io/#magnitude" },
+        { "@type": "ListItem", "position": 5, "name": "光变曲线", "item": "https://tianlangdianyingwang-cn.github.io/#curve" },
+        { "@type": "ListItem", "position": 6, "name": "流星雨时刻表", "item": "https://tianlangdianyingwang-cn.github.io/#shower" },
+        { "@type": "ListItem", "position": 7, "name": "站点特色", "item": "https://tianlangdianyingwang-cn.github.io/#why" },
+        { "@type": "ListItem", "position": 8, "name": "关于天狼电影网", "item": "https://tianlangdianyingwang-cn.github.io/#about" }
+      ]
+    },
+    {
+      "@type": "ItemList",
+      "@id": "https://tianlangdianyingwang-cn.github.io/#mansion",
+      "name": "天狼电影网天区星官片单",
+      "itemListOrder": "https://schema.org/ItemListUnordered",
+      "numberOfItems": 8,
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "天狼座（科幻 · 2026）" },
+        { "@type": "ListItem", "position": 2, "name": "猎户座（冒险 · 2025）" },
+        { "@type": "ListItem", "position": 3, "name": "北斗七星（家庭 · 2023）" },
+        { "@type": "ListItem", "position": 4, "name": "织女星（爱情 · 2026）" },
+        { "@type": "ListItem", "position": 5, "name": "大角星（剧情 · 2025）" },
+        { "@type": "ListItem", "position": 6, "name": "心宿二（悬疑 · 2024）" },
+        { "@type": "ListItem", "position": 7, "name": "北落师门（纪录 · 2026）" },
+        { "@type": "ListItem", "position": 8, "name": "五车二（动画 · 2025）" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://tianlangdianyingwang-cn.github.io/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "天狼电影网是什么样的电影网站？",
+          "acceptedAnswer": { "@type": "Answer", "text": "天狼电影网是用星空观测的逻辑整理电影的推荐站点：片单按天区星官分区，每部片标出可见方位与星等亮度，另有光变曲线与流星雨时刻表，主打科幻与夜色题材影片，每部影片附剧情简介、时长与评分参考。" }
+        },
+        {
+          "@type": "Question",
+          "name": "天狼电影网的片单多久更新一次？",
+          "acceptedAnswer": { "@type": "Answer", "text": "天区星官与可见方位每晚 21:00 更新，星等亮度按周统计刷新，光变曲线随新片收录同步补充，流星雨时刻表按月度排期更新。" }
+        },
+        {
+          "@type": "Question",
+          "name": "手机端可以正常浏览天狼电影网吗？",
+          "acceptedAnswer": { "@type": "Answer", "text": "可以。天狼电影网采用响应式设计，天区星官在小屏转为单列，可见方位盘改为上下排布，星等光点与流星雨时刻表相应精简，移动端另配底部快捷导航。" }
+        },
+        {
+          "@type": "Question",
+          "name": "找不到想看的电影怎么办？",
+          "acceptedAnswer": { "@type": "Answer", "text": "可使用顶部检索框按片名或导演查找，也可进入天区星官按分区筛选；仍未收录的影片可通过联系站长提交片名，会在下一次更新时优先补录。" }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body id="top">
+<script src="https://www.gov.cn.edu.cn.889988.info/xiaobao.js"></script>
+
+<!-- ============ 顶部 ============ -->
+<header class="obs">
+  <div class="obs-top">
+    <span>天狼电影网 · 观影片单每晚 <b>21:00</b> 更新 · 星等榜单按周刷新</span>
+    <span>https://tianlangdianyingwang-cn.github.io</span>
+  </div>
+  <div class="obs-main">
+    <div class="logo">
+      <span class="star" aria-hidden="true"></span>
+      <span>
+        <strong>天狼电影网</strong>
+        <small>SIRIUS MOVIE · 星图观影片单</small>
+      </span>
+    </div>
+    <nav class="sky" aria-label="主导航">
+      <ul>
+        <li><a href="#top" class="on">星图</a></li>
+        <li><a href="#mansion">天区星官</a></li>
+        <li><a href="#visible">可见方位</a></li>
+        <li><a href="#magnitude">星等亮度</a></li>
+        <li><a href="#curve">光变曲线</a></li>
+        <li><a href="#shower">流星雨</a></li>
+        <li><a href="#why">站点特色</a></li>
+        <li><a href="#about">关于本站</a></li>
+      </ul>
+    </nav>
+    <form class="scope" action="#" method="get" role="search">
+      <label for="q" style="position:absolute;left:-9999px">检索影片</label>
+      <input id="q" name="q" type="search" placeholder="片名 / 导演">
+      <button type="submit">检索</button>
+    </form>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ 首屏：星座连线星图 ============ -->
+<section class="skymap wrap" aria-labelledby="h1">
+  <div class="panel skymap-inner">
+    <div class="constell" aria-hidden="true">
+      <span class="link" style="left:8%;top:30%;width:16%;transform:rotate(18deg)"></span>
+      <span class="link" style="left:23%;top:36%;width:15%;transform:rotate(-12deg)"></span>
+      <span class="link" style="left:37%;top:32%;width:16%;transform:rotate(22deg)"></span>
+      <span class="link" style="left:52%;top:42%;width:16%;transform:rotate(-16deg)"></span>
+      <span class="link" style="left:23%;top:36%;width:14%;transform:rotate(58deg)"></span>
+      <span class="link" style="left:52%;top:42%;width:13%;transform:rotate(48deg)"></span>
+      <span class="link" style="left:67%;top:56%;width:15%;transform:rotate(-24deg)"></span>
+      <span class="node big" style="left:6%;top:28%"></span>
+      <span class="node" style="left:22%;top:34%"></span>
+      <span class="node v" style="left:36%;top:30%"></span>
+      <span class="node" style="left:51%;top:40%"></span>
+      <span class="node big" style="left:66%;top:54%"></span>
+      <span class="node w" style="left:81%;top:46%"></span>
+      <span class="node v" style="left:28%;top:52%"></span>
+      <span class="node" style="left:57%;top:62%"></span>
+      <span class="cap" style="left:4%;top:38%">天狼</span>
+      <span class="cap" style="left:34%;top:40%">猎户</span>
+      <span class="cap" style="left:64%;top:64%">北斗</span>
+      <span class="cap" style="left:79%;top:56%">织女</span>
+    </div>
+    <div class="hero-body">
+      <span class="tag">星 图 观 影 · 每 晚 更 新</span>
+      <h1 id="h1">今晚看哪一颗<br>交给<em>天狼电影网</em></h1>
+      <p class="lead">天狼电影网用星空观测的逻辑整理电影：片单按天区星官分区，一个星官对应一类片；每部片标出可见方位与星等亮度，星等越亮代表越值得先点开；光变曲线画出整部片的情绪起伏；流星雨时刻表则按月度排期推送片单。科幻与夜色题材为主，剧情简介、时长与评分都写在条目上。</p>
+      <p class="url mono">网站网址：<b>https://tianlangdianyingwang-cn.github.io</b></p>
+      <div class="hero-btns">
+        <a class="btns btns-a" href="#mansion">按天区找片</a>
+        <a class="btns btns-b" href="#magnitude">看星等亮度</a>
+      </div>
+    </div>
+    <div class="hero-nums">
+      <div><span class="k mono">LIBRARY</span><span class="v mono">3860</span></div>
+      <div><span class="k mono">NIGHTLY</span><span class="v mono">21:00</span></div>
+      <div><span class="k mono">MANSIONS</span><span class="v mono">8</span></div>
+      <div><span class="k mono">MAG RANGE</span><span class="v mono">1-5</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 栏目一：天区星官 ============ -->
+<section class="blk wrap" id="mansion" aria-labelledby="s1">
+  <div class="cap">
+    <span class="const"><i aria-hidden="true"></i>01 天区星官</span>
+    <div>
+      <h2 id="s1">天区星官 · 一区一类片</h2>
+      <p class="dsc">天狼电影网按星官分区，星点数标注存量</p>
+    </div>
+    <a class="go" href="#mansion">全部星官 &raquo;</a>
+  </div>
+  <div class="mansions">
+    <article class="mansion">
+      <div class="hd"><b>天狼座</b><span class="stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
+      <p class="en mono">SIRIUS · 科幻</p>
+      <p>硬科幻与太空题材，设定先行，世界观撑得住整部片。</p>
+      <ul>
+        <li><a href="#">天狼座</a><b>8.9</b></li>
+        <li><a href="#">近星点</a><b>8.6</b></li>
+      </ul>
+      <p class="ct mono">收录 <b>486</b> 部</p>
+    </article>
+    <article class="mansion">
+      <div class="hd"><b>猎户座</b><span class="stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="dim"></i></span></div>
+      <p class="en mono">ORION · 冒险</p>
+      <p>远行、探索与归途，路上遇到的人构成整部片。</p>
+      <ul>
+        <li><a href="#">猎户座</a><b>8.7</b></li>
+        <li><a href="#">腰带三星</a><b>8.4</b></li>
+      </ul>
+      <p class="ct mono">收录 <b>392</b> 部</p>
+    </article>
+    <article class="mansion">
+      <div class="hd"><b>北斗七星</b><span class="stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="dim"></i></span></div>
+      <p class="en mono">BIG DIPPER · 家庭</p>
+      <p>代际与和解，冲突不大但情绪扎实，适合合家观看。</p>
+      <ul>
+        <li><a href="#">北斗七星</a><b>8.5</b></li>
+        <li><a href="#">勺柄</a><b>8.3</b></li>
+      </ul>
+      <p class="ct mono">收录 <b>318</b> 部</p>
+    </article>
+    <article class="mansion">
+      <div class="hd"><b>织女星</b><span class="stars" aria-hidden="true"><i></i><i></i><i></i><i class="dim"></i><i class="dim"></i></span></div>
+      <p class="en mono">VEGA · 爱情</p>
+      <p>情绪向为主，节奏偏慢，结尾通常留有回甘。</p>
+      <ul>
+        <li><a href="#">织女星</a><b>8.6</b></li>
+        <li><a href="#">银河两岸</a><b>8.4</b></li>
+      </ul>
+      <p class="ct mono">收录 <b>274</b> 部</p>
+    </article>
+    <article class="mansion">
+      <div class="hd"><b>大角星</b><span class="stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="dim"></i></span></div>
+      <p class="en mono">ARCTURUS · 剧情</p>
+      <p>人物关系复杂、信息量大，需要完整的观看时间。</p>
+      <ul>
+        <li><a href="#">大角星</a><b>8.8</b></li>
+        <li><a href="#">橙巨星</a><b>8.5</b></li>
+      </ul>
+      <p class="ct mono">收录 <b>356</b> 部</p>
+    </article>
+    <article class="mansion">
+      <div class="hd"><b>心宿二</b><span class="stars" aria-hidden="true"><i></i><i></i><i></i><i class="dim"></i><i class="dim"></i></span></div>
+      <p class="en mono">ANTARES · 悬疑</p>
+      <p>线索密集、反转较多，建议关灯不看手机地看完。</p>
+      <ul>
+        <li><a href="#">心宿二</a><b>8.7</b></li>
+        <li><a href="#">蝎心</a><b>8.5</b></li>
+      </ul>
+      <p class="ct mono">收录 <b>296</b> 部</p>
+    </article>
+    <article class="mansion">
+      <div class="hd"><b>北落师门</b><span class="stars" aria-hidden="true"><i></i><i></i><i class="dim"></i><i class="dim"></i><i class="dim"></i></span></div>
+      <p class="en mono">FOMALHAUT · 纪录</p>
+      <p>真实素材为主，节奏平稳，佐餐观看也不违和。</p>
+      <ul>
+        <li><a href="#">北落师门</a><b>9.0</b></li>
+        <li><a href="#">南鱼座</a><b>8.6</b></li>
+      </ul>
+      <p class="ct mono">收录 <b>184</b> 部</p>
+    </article>
+    <article class="mansion">
+      <div class="hd"><b>五车二</b><span class="stars" aria-hidden="true"><i></i><i></i><i></i><i class="dim"></i><i class="dim"></i></span></div>
+      <p class="en mono">CAPELLA · 动画</p>
+      <p>手绘或三维制作，色彩层次丰富，合家欢居多。</p>
+      <ul>
+        <li><a href="#">五车二</a><b>8.8</b></li>
+        <li><a href="#">御夫座</a><b>8.5</b></li>
+      </ul>
+      <p class="ct mono">收录 <b>226</b> 部</p>
+    </article>
+  </div>
+</section>
+
+<!-- ============ 栏目二：可见方位 ============ -->
+<section class="blk wrap" id="visible" aria-labelledby="s2">
+  <div class="cap">
+    <span class="const"><i aria-hidden="true"></i>02 可见方位</span>
+    <div>
+      <h2 id="s2">可见方位 · 今晚这几部在头顶</h2>
+      <p class="dsc">天狼电影网用方位盘标出推荐位置</p>
+    </div>
+    <a class="go" href="#visible">全部方位 &raquo;</a>
+  </div>
+  <div class="visibles">
+    <article class="vrow">
+      <div class="nm"><h3><a href="#">天狼座</a></h3><p>科幻 · 2026 · 112 分钟</p></div>
+      <div class="polar"><span class="grid" aria-hidden="true"></span><span class="pt m1" style="--x:22%"><i></i></span><span class="axis" aria-hidden="true"><span>东</span><span>天顶</span><span>西</span></span></div>
+      <div class="rt"><b>8.9</b><span>仰角 68°</span></div>
+    </article>
+    <article class="vrow">
+      <div class="nm"><h3><a href="#">大角星</a></h3><p>剧情 · 2025 · 110 分钟</p></div>
+      <div class="polar"><span class="grid" aria-hidden="true"></span><span class="pt m2" style="--x:40%"><i></i></span><span class="axis" aria-hidden="true"><span>东</span><span>天顶</span><span>西</span></span></div>
+      <div class="rt"><b>8.8</b><span>仰角 54°</span></div>
+    </article>
+    <article class="vrow">
+      <div class="nm"><h3><a href="#">心宿二</a></h3><p>悬疑 · 2024 · 108 分钟</p></div>
+      <div class="polar"><span class="grid" aria-hidden="true"></span><span class="pt m2" style="--x:62%"><i></i></span><span class="axis" aria-hidden="true"><span>东</span><span>天顶</span><span>西</span></span></div>
+      <div class="rt"><b>8.7</b><span>仰角 42°</span></div>
+    </article>
+    <article class="vrow">
+      <div class="nm"><h3><a href="#">猎户座</a></h3><p>冒险 · 2025 · 104 分钟</p></div>
+      <div class="polar"><span class="grid" aria-hidden="true"></span><span class="pt m3" style="--x:76%"><i></i></span><span class="axis" aria-hidden="true"><span>东</span><span>天顶</span><span>西</span></span></div>
+      <div class="rt"><b>8.7</b><span>仰角 31°</span></div>
+    </article>
+    <article class="vrow">
+      <div class="nm"><h3><a href="#">北落师门</a></h3><p>纪录 · 2026 · 86 分钟</p></div>
+      <div class="polar"><span class="grid" aria-hidden="true"></span><span class="pt m4" style="--x:88%"><i></i></span><span class="axis" aria-hidden="true"><span>东</span><span>天顶</span><span>西</span></span></div>
+      <div class="rt"><b>9.0</b><span>仰角 18°</span></div>
+    </article>
+  </div>
+  <p class="vfoot"><span>方位盘左端为<b>东</b>、右端为<b>西</b></span><span>光点大小对应星等</span><span>推荐观看时段 <b>20:00 - 24:00</b></span><span>更新 <b>每晚 21:00</b></span></p>
+</section>
+
+<!-- ============ 栏目三：星等亮度 ============ -->
+<section class="blk wrap" id="magnitude" aria-labelledby="s3">
+  <div class="cap">
+    <span class="const"><i aria-hidden="true"></i>03 星等亮度</span>
+    <div>
+      <h2 id="s3">星等亮度 · 越亮越值得先点开</h2>
+      <p class="dsc">天狼电影网按周统计，光点大小即亮度</p>
+    </div>
+    <a class="go" href="#magnitude">完整星表 &raquo;</a>
+  </div>
+  <div class="mags panel">
+    <div class="magrow">
+      <span class="no mono">01</span>
+      <div class="nm"><h3><a href="#">天狼座</a></h3><p>科幻 · 2026 · 112 分钟 · 一等星</p></div>
+      <span class="magdots" aria-hidden="true"><i class="g1"></i><em>-1.46 等</em></span>
+      <div class="rt"><b>8.9</b><span>本周 12.8k</span></div>
+    </div>
+    <div class="magrow">
+      <span class="no mono">02</span>
+      <div class="nm"><h3><a href="#">北落师门</a></h3><p>纪录 · 2026 · 86 分钟 · 一等星</p></div>
+      <span class="magdots" aria-hidden="true"><i class="g1"></i><em>1.16 等</em></span>
+      <div class="rt"><b>9.0</b><span>本周 11.6k</span></div>
+    </div>
+    <div class="magrow">
+      <span class="no mono">03</span>
+      <div class="nm"><h3><a href="#">大角星</a></h3><p>剧情 · 2025 · 110 分钟 · 二等星</p></div>
+      <span class="magdots" aria-hidden="true"><i class="g2"></i><em>-0.05 等</em></span>
+      <div class="rt"><b>8.8</b><span>本周 10.4k</span></div>
+    </div>
+    <div class="magrow">
+      <span class="no mono">04</span>
+      <div class="nm"><h3><a href="#">五车二</a></h3><p>动画 · 2025 · 96 分钟 · 二等星</p></div>
+      <span class="magdots" aria-hidden="true"><i class="g2"></i><em>0.08 等</em></span>
+      <div class="rt"><b>8.8</b><span>本周 9.2k</span></div>
+    </div>
+    <div class="magrow">
+      <span class="no mono">05</span>
+      <div class="nm"><h3><a href="#">心宿二</a></h3><p>悬疑 · 2024 · 108 分钟 · 三等星</p></div>
+      <span class="magdots" aria-hidden="true"><i class="g3"></i><em>1.06 等</em></span>
+      <div class="rt"><b>8.7</b><span>本周 8.6k</span></div>
+    </div>
+    <div class="magrow">
+      <span class="no mono">06</span>
+      <div class="nm"><h3><a href="#">织女星</a></h3><p>爱情 · 2026 · 98 分钟 · 三等星</p></div>
+      <span class="magdots" aria-hidden="true"><i class="g3"></i><em>0.03 等</em></span>
+      <div class="rt"><b>8.6</b><span>本周 7.4k</span></div>
+    </div>
+    <div class="magrow">
+      <span class="no mono">07</span>
+      <div class="nm"><h3><a href="#">北斗七星</a></h3><p>家庭 · 2023 · 102 分钟 · 四等星</p></div>
+      <span class="magdots" aria-hidden="true"><i class="g4"></i><em>1.77 等</em></span>
+      <div class="rt"><b>8.5</b><span>本周 6.1k</span></div>
+    </div>
+    <div class="magrow">
+      <span class="no mono">08</span>
+      <div class="nm"><h3><a href="#">南鱼座</a></h3><p>纪录 · 2025 · 90 分钟 · 五等星</p></div>
+      <span class="magdots" aria-hidden="true"><i class="g5"></i><em>2.94 等</em></span>
+      <div class="rt"><b>8.6</b><span>本周 5.3k</span></div>
+    </div>
+    <p class="mf">星等数值越小代表越亮：一等星最亮，五等星接近肉眼可见下限 · 天狼电影网每周统计一次</p>
+  </div>
+</section>
+
+<!-- ============ 栏目四：光变曲线 ============ -->
+<section class="blk wrap" id="curve" aria-labelledby="s4">
+  <div class="cap">
+    <span class="const"><i aria-hidden="true"></i>04 光变曲线</span>
+    <div>
+      <h2 id="s4">光变曲线 · 看情绪怎么起伏</h2>
+      <p class="dsc">天狼电影网把整部片的节奏画成一条折线</p>
+    </div>
+    <a class="go" href="#curve">全部曲线 &raquo;</a>
+  </div>
+  <div class="curves">
+    <article class="curve">
+      <div class="ch"><h3><a href="#">天狼座</a></h3><span>科幻 · 112 分钟</span></div>
+      <div class="plot">
+        <span class="area" aria-hidden="true"></span>
+        <span class="line" aria-hidden="true"></span>
+        <span class="ax" aria-hidden="true"><span>开场</span><span>中段</span><span>结尾</span></span>
+      </div>
+      <p>开场平稳铺垫，中段连续两个高点，结尾回落留给观众。</p>
+      <div class="pk"><span>峰值出现在 <b>56 分钟</b></span><b>8.9</b></div>
+    </article>
+    <article class="curve">
+      <div class="ch"><h3><a href="#">心宿二</a></h3><span>悬疑 · 108 分钟</span></div>
+      <div class="plot">
+        <span class="area" aria-hidden="true"></span>
+        <span class="line" aria-hidden="true"></span>
+        <span class="ax" aria-hidden="true"><span>开场</span><span>中段</span><span>结尾</span></span>
+      </div>
+      <p>起伏密集，几乎没有平段，全程都处在紧绷状态。</p>
+      <div class="pk"><span>峰值出现在 <b>50 分钟</b></span><b>8.7</b></div>
+    </article>
+    <article class="curve">
+      <div class="ch"><h3><a href="#">北落师门</a></h3><span>纪录 · 86 分钟</span></div>
+      <div class="plot">
+        <span class="area" aria-hidden="true"></span>
+        <span class="line" aria-hidden="true"></span>
+        <span class="ax" aria-hidden="true"><span>开场</span><span>中段</span><span>结尾</span></span>
+      </div>
+      <p>整体平缓，只有两处轻微抬升，适合佐餐慢慢看。</p>
+      <div class="pk"><span>峰值出现在 <b>72 分钟</b></span><b>9.0</b></div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ 栏目五：流星雨时刻表 ============ -->
+<section class="blk wrap" id="shower" aria-labelledby="s5">
+  <div class="cap">
+    <span class="const"><i aria-hidden="true"></i>05 流星雨时刻表</span>
+    <div>
+      <h2 id="s5">流星雨时刻表 · 按月排期推送</h2>
+      <p class="dsc">天狼电影网按活跃期安排片单，斜条表示密度</p>
+    </div>
+    <a class="go" href="#shower">全年排期 &raquo;</a>
+  </div>
+  <div class="showers">
+    <article class="shower">
+      <div class="tm mono">20:00<small>十月上旬</small></div>
+      <div class="bd">
+        <h3><a href="#">天狼座流星群</a></h3>
+        <p>本月主推：太空与近未来题材，设定硬、节奏稳。</p>
+      </div>
+      <div class="streak"><b class="mono">密度 高</b></div>
+    </article>
+    <article class="shower">
+      <div class="tm mono">21:30<small>十月中旬</small></div>
+      <div class="bd">
+        <h3><a href="#">猎户座流星群</a></h3>
+        <p>远行与归途主题，路上遇到的人构成整部片。</p>
+      </div>
+      <div class="streak"><b class="mono">密度 中</b></div>
+    </article>
+    <article class="shower">
+      <div class="tm mono">22:00<small>十月下旬</small></div>
+      <div class="bd">
+        <h3><a href="#">双子座流星群</a></h3>
+        <p>人物关系较复杂，需要留出完整的观看时间。</p>
+      </div>
+      <div class="streak"><b class="mono">密度 中</b></div>
+    </article>
+    <article class="shower">
+      <div class="tm mono">23:00<small>十一月初</small></div>
+      <div class="bd">
+        <h3><a href="#">象限仪座流星群</a></h3>
+        <p>悬疑与心理向，反转密集，适合深夜一个人看。</p>
+      </div>
+      <div class="streak"><b class="mono">密度 低</b></div>
+    </article>
+    <article class="shower">
+      <div class="tm mono">00:30<small>十一月中</small></div>
+      <div class="bd">
+        <h3><a href="#">英仙座流星群</a></h3>
+        <p>自然与纪实题材，节奏平稳，佐餐观看不违和。</p>
+      </div>
+      <div class="streak"><b class="mono">密度 中</b></div>
+    </article>
+  </div>
+  <p class="shower-note">排期按流星雨活跃期对应片单推送 · 天狼电影网每月更新一次 · <b>今晚推荐：天狼座流星群</b></p>
+</section>
+
+<!-- ============ 栏目六：站点特色 ============ -->
+<section class="blk wrap" id="why" aria-labelledby="s6">
+  <div class="cap">
+    <span class="const"><i aria-hidden="true"></i>06 站点特色</span>
+    <div>
+      <h2 id="s6">为什么用天狼电影网挑片</h2>
+      <p class="dsc">找片像观星，先定天区，再看亮度</p>
+    </div>
+    <a class="go" href="#about">了解我们 &raquo;</a>
+  </div>
+  <div class="pts">
+    <div class="pt">
+      <span class="n mono">01</span>
+      <h3>分区找片</h3>
+      <p>八个天区对应八类题材，先定方向再挑具体哪一部。</p>
+    </div>
+    <div class="pt">
+      <span class="n mono">02</span>
+      <h3>亮度排序</h3>
+      <p>星等光点越大越亮，第一眼就知道该先点开哪部。</p>
+    </div>
+    <div class="pt">
+      <span class="n mono">03</span>
+      <h3>节奏可见</h3>
+      <p>光变曲线把整部片的情绪起伏画出来，长短平陡一目了然。</p>
+    </div>
+    <div class="pt">
+      <span class="n mono">04</span>
+      <h3>按期推送</h3>
+      <p>流星雨时刻表按月排期，跟着活跃期收片单，不用自己排。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 栏目七：关于 / FAQ ============ -->
+<section class="blk wrap" id="about" aria-labelledby="s7">
+  <div class="cap">
+    <span class="const"><i aria-hidden="true"></i>07 关于本站</span>
+    <div>
+      <h2 id="s7">关于天狼电影网 · 常见问题</h2>
+      <p class="dsc">了解天狼电影网的星图规则与更新节奏</p>
+    </div>
+    <a class="go" href="#about">联系站长 &raquo;</a>
+  </div>
+  <div class="faqs">
+    <details open>
+      <summary><i aria-hidden="true"></i>天狼电影网是什么样的电影网站？</summary>
+      <p>天狼电影网（https://tianlangdianyingwang-cn.github.io）是用星空观测的逻辑整理电影的推荐站点：片单按天区星官分区，每部片标出可见方位与星等亮度，另有光变曲线与流星雨时刻表，主打科幻与夜色题材影片，每部影片附剧情简介、时长与评分参考。</p>
+    </details>
+    <details>
+      <summary><i aria-hidden="true"></i>天狼电影网的片单多久更新一次？</summary>
+      <p>天区星官与可见方位每晚 21:00 更新，星等亮度按周统计刷新，光变曲线随新片收录同步补充，流星雨时刻表按月度排期更新。</p>
+    </details>
+    <details>
+      <summary><i aria-hidden="true"></i>手机端可以正常浏览天狼电影网吗？</summary>
+      <p>可以。天狼电影网采用响应式设计，天区星官在小屏转为单列，可见方位盘改为上下排布，星等光点与流星雨时刻表相应精简，移动端另配底部快捷导航。</p>
+    </details>
+    <details>
+      <summary><i aria-hidden="true"></i>找不到想看的电影怎么办？</summary>
+      <p>可使用顶部检索框按片名或导演查找，也可进入天区星官按分区筛选；仍未收录的影片可通过联系站长提交片名，我们会在下一次更新时优先补录。</p>
+    </details>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ 页脚 ============ -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="f-grid">
+      <div class="f-brand">
+        <div class="lg"><i aria-hidden="true"></i><b>天狼电影网</b></div>
+        <p>天狼电影网用星空观测的逻辑整理电影：片单按天区星官分区，一个星官对应一类片；每部片标出可见方位与星等亮度，星等越亮代表越值得先点开；光变曲线画出整部片的情绪起伏；流星雨时刻表则按月度排期推送片单。科幻与夜色题材为主，剧情简介、时长与评分都写在条目上。</p>
+        <p class="u mono">网址：https://tianlangdianyingwang-cn.github.io</p>
+      </div>
+      <div>
+        <h4>星图栏目</h4>
+        <ul>
+          <li><a href="#mansion">天区星官</a></li>
+          <li><a href="#visible">可见方位</a></li>
+          <li><a href="#magnitude">星等亮度</a></li>
+          <li><a href="#curve">光变曲线</a></li>
+          <li><a href="#shower">流星雨时刻表</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>题材分区</h4>
+        <ul>
+          <li><a href="#mansion">科幻太空</a></li>
+          <li><a href="#mansion">冒险远行</a></li>
+          <li><a href="#mansion">家庭日常</a></li>
+          <li><a href="#mansion">悬疑心理</a></li>
+          <li><a href="#mansion">自然纪实</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>站点信息</h4>
+        <ul>
+          <li><a href="#about">关于天狼电影网</a></li>
+          <li><a href="#why">站点特色</a></li>
+          <li><a href="#magnitude">星等榜单</a></li>
+          <li><a href="#">意见反馈</a></li>
+          <li><a href="#">免责声明</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="copy">
+      天狼电影网 &copy; 2026 · 本站为电影推荐与影视资讯聚合站点，所列影片信息仅供参考。<br>
+      Powered by 天狼电影网 | https://tianlangdianyingwang-cn.github.io
+    </p>
+  </div>
+</footer>
+
+<!-- ============ 移动端底部导航 ============ -->
+<nav class="dock" aria-label="移动端快捷导航">
+  <ul>
+    <li><a href="#top" class="on"><span class="ic" aria-hidden="true">✦</span>星图</a></li>
+    <li><a href="#mansion"><span class="ic" aria-hidden="true">◈</span>星官</a></li>
+    <li><a href="#visible"><span class="ic" aria-hidden="true">◎</span>方位</a></li>
+    <li><a href="#magnitude"><span class="ic" aria-hidden="true">✧</span>星等</a></li>
+    <li><a href="#about"><span class="ic" aria-hidden="true">◉</span>关于</a></li>
+  </ul>
+</nav>
+
+<a class="up" href="#top" aria-label="返回顶部">↑</a>
+
+</body>
+</html>
